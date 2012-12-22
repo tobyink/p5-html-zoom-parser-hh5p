@@ -28,12 +28,16 @@ use constant {
 use Moo;
 extends qw(HTML::Zoom::SubObject);
 
-has _zconfig => (
+has zconfig => (
 	is       => 'ro',
 	weaken   => 1,
-	init_arg => 'zconfig',
 	writer   => 'with_zconfig',
 );
+
+sub _zconfig
+{
+	shift->zconfig;
+}
 
 has parse_as_fragment => (
 	is       => 'rw',
@@ -71,7 +75,7 @@ sub _parser
 	# Decide whether we have a document fragment or a full document.
 	my $is_frag = $self->parse_as_fragment;
 	defined $is_frag
-		or $is_frag = !(substr($text,0,512) =~ /<html/i);
+		or $is_frag = !(substr($text,0,512) =~ /<(html|\!doctype|\?xml)/i);
 	
 	my $dom = $is_frag
 		? HTML::HTML5::Parser::->new->parse_balanced_chunk($text)
@@ -90,9 +94,10 @@ sub _visit
 	if ($type == XML_ELEMENT_NODE)
 	{
 		my $ignore = $self->ignore_implied_elements;
+		my ($line, $col, $implied);
 		if ($ignore)
 		{
-			my ($line, $col, $implied) = HTML::HTML5::Parser::->source_line($node);
+			($line, $col, $implied) = HTML::HTML5::Parser::->source_line($node);
 			$ignore = 0 unless $implied;
 		}
 		
@@ -100,8 +105,10 @@ sub _visit
 			type       => EVENT_OPEN_TAG,
 			libxml     => $node,
 			name       => $node->localname,
-			attrs      => $node,
+			attrs      => +{ %$node },
 			attr_names => [ sort keys %$node ],
+			line       => $line,
+			column     => $col,
 		}) unless $ignore;
 		
 		$continuation->($self, $_, $handler, $continuation)
@@ -111,7 +118,7 @@ sub _visit
 			type       => EVENT_CLOSE_TAG,
 			libxml     => $node,
 			name       => $node->localname,
-			attrs      => $node,
+			attrs      => +{ %$node },
 			attr_names => [ sort keys %$node ],
 		}) unless $ignore;
 	}
@@ -170,6 +177,7 @@ sub _visit
 		$handler->({
 			type       => EVENT_OTHER,
 			libxml     => $node,
+			raw        => $node->toString,
 		});
 	}
 }
@@ -187,7 +195,96 @@ HTML::Zoom::Parser::HH5P - use HTML::HTML5::Parser with HTML::Zoom
 
 =head1 SYNOPSIS
 
+   use HTML::Zoom;
+   use HTML::Zoom::Parser::HH5P;
+   
+   my $template = <<HTML;
+   <!DOCTYPE HTML
+      PUBLIC "-//W3C//DTD HTML 4.01//EN"
+      "http://www.w3.org/TR/html4/strict.dtd">
+   <html></html>
+   HTML
+   
+   my $output = HTML::Zoom
+      -> new({ zconfig => { parser => 'HTML::Zoom::Parser::HH5P' } })
+      -> from_html($template)
+      -> to_html;
+
 =head1 DESCRIPTION
+
+C<HTML::Zoom::Parser::HH5P> is glue between L<HTML::Zoom> and
+L<HTML::HTML5::Parser>. It is likely to be slower than HTML::Zoom's
+built in parser and L<HTML::Zoom::Parser::HTML::Parser>, but because
+HTML::HTML5::Parser uses the HTML5 parsing algorithm, should handle
+malformed HTML in a manner more consistent with popular desktop web
+browsers.
+
+=head2 Constructor
+
+=over
+
+=item C<< new(%attributes) >>
+
+Moose/Moo-style constructor function.
+
+=back
+
+=head2 Attributes
+
+=over
+
+=item C<< zconfig >>
+
+Holds an L<HTML::Zoom::ZConfig> object. Read-only attribute, but a
+separate C<with_zconfig> method id provided to set the zconfig
+attribute.
+
+=item C<< parse_as_fragment >>
+
+Tri-state variable. If set to false, then all HTML parsed with this
+object will be be treated as full HTML documents. Missing optional tags
+such as C<< <head> >> and C<< <body> >> will be inferred and added to
+the stream as required by the HTML5 specification. If set to true, then
+all HTML parsed with the object will be treated as document fragments.
+If undefined (the default), then this module will attempt to guess the
+correct behaviour.
+
+The current guessing heuristic is a case-insensitive search for "<html",
+"<!doctype" or "<?xml" in the first 512 characters of the string being
+parsed.
+
+=item C<< ignore_implied_elements >>
+
+Boolean. If set to true (the default) then regardless of the
+C<parse_as_fragment> setting, elements which have been inferred will
+not be included in the output stream.
+
+=back
+
+=head2 Methods
+
+=over
+
+=item C<< html_to_events($string) >>
+
+Returns an arrayref of hashrefs, where each hashref represents an
+"event" parsing the HTML. Events correspond to elements, text nodes,
+DTDs and so on in the HTML document. (Attributes are not events, but
+are included in the element hashref.)
+
+=item C<< html_to_stream($string) >>
+
+As per C<html_to_events> but returns an HTML::Zoom stream.
+
+=item C<< html_escape($string) >>
+
+Utility method to escape characters within the string as HTML entities.
+
+=item C<< html_unescape($string) >>
+
+Utility method to unescape HTML entities.
+
+=back
 
 =head1 BUGS
 
@@ -195,6 +292,8 @@ Please report any bugs to
 L<http://rt.cpan.org/Dist/Display.html?Queue=HTML-Zoom-Parser-HH5P>.
 
 =head1 SEE ALSO
+
+L<HTML::Zoom>, L<HTML::HTML5::Parser>.
 
 =head1 AUTHOR
 
@@ -206,7 +305,6 @@ This software is copyright (c) 2012 by Toby Inkster.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
-
 
 =head1 DISCLAIMER OF WARRANTIES
 
