@@ -284,6 +284,10 @@ Utility method to escape characters within the string as HTML entities.
 
 Utility method to unescape HTML entities.
 
+=item C<< with_zconfig($zconfig) >>
+
+Writer for C<zconfig> attribute.
+
 =back
 
 =head1 BUGS
