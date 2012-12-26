@@ -7,7 +7,7 @@ use utf8;
 
 BEGIN {
 	$HTML::Zoom::Parser::HH5P::AUTHORITY = 'cpan:TOBYINK';
-	$HTML::Zoom::Parser::HH5P::VERSION   = '0.000_01';
+	$HTML::Zoom::Parser::HH5P::VERSION   = '0.001';
 }
 
 use HTML::HTML5::Parser;
