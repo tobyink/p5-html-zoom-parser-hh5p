@@ -4,18 +4,12 @@
 	perl_version_from m`HTML::Zoom::Parser::HH5P`;
 	version_from      m`HTML::Zoom::Parser::HH5P`;
 	readme_from       m`HTML::Zoom::Parser::HH5P`;
-	requires p`HTML::HTML5::Entities 0`;
-	requires p`HTML::HTML5::Parser 0.206`;
-	requires p`HTML::Zoom::SubObject 0`;
-	requires p`Moo 1.000000`;
-	requires p`XML::LibXML 2.00`;
-	requires p`namespace::clean 0`;
-	test_requires p`HTML::Zoom 0`;
-	test_requires p`HTML::Zoom::CodeStream 0`;
-	test_requires p`HTML::Zoom::FilterBuilder 0`;
-	test_requires p`HTML::Zoom::FilterStream 0`;
-	test_requires p`HTML::Zoom::Producer::BuiltIn 0`;
-	test_requires p`HTML::Zoom::SelectorParser 0`;
-	test_requires p`strictures 1`;
+	requires          p`HTML::HTML5::Entities`;
+	requires          p`HTML::HTML5::Parser 0.206`;
+	requires          p`HTML::Zoom 0.009006`;
+	requires          p`Moo 1.000000`;
+	requires          p`XML::LibXML 2.00`;
+	requires          p`namespace::clean`;
+	test_requires     p`strictures 1`;
 .
 
