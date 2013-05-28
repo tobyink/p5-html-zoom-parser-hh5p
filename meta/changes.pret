@@ -7,3 +7,9 @@
 `HTML-Zoom-Parser-HH5P 0.001 cpan:TOBYINK`
 	issued  2012-12-26;
 	label   "Initial release".
+
+`HTML-Zoom-Parser-HH5P 0.002 cpan:TOBYINK`
+	issued  2013-05-28;
+	changeset [
+		item "HTML::Zoom changed the syntax for add_to_attribute/set_attribute methods; support newer syntax."^^Update;
+	].
