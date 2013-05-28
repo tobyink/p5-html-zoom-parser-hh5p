@@ -63,7 +63,7 @@ ok my $dwim = $zoom
   ->$title('Hello NYC')
   ->replace_content('.first-para' => 'First!')
   ->replace_content('.last-para' => 'Last!')
-  ->add_to_attribute(p => class => 'para')
+  ->add_to_attribute('p', class => 'para')
   ->prepend_content('.first-item' => [{type=>'TEXT', raw=>'FIRST: '}])
   ->prepend_content('.last-item' => [{type=>'TEXT', raw=>'LAST: '}])
   ->replace_content('title' => 'Hello World')
@@ -101,7 +101,7 @@ like(
 like(
   HTML::Zoom->new( { zconfig => { parser => 'HTML::Zoom::Parser::HH5P' } } )
     ->from_html(q[<p class="first">Hi!</p>])
-    ->add_to_attribute('p', {name => 'class', value => 'para'})
+    ->add_to_attribute('p', class => 'para')
     ->to_html,
   qr/first para/,
   'Got correct from add_to_attribute'
@@ -128,7 +128,7 @@ like(
 like(
   HTML::Zoom->new( { zconfig => { parser => 'HTML::Zoom::Parser::HH5P' } } )
     ->from_html(q[<p class="first">Hi!</p>])
-    ->set_attribute('p', {name => 'class', value => 'para'})
+    ->set_attribute('p', class => 'para')
     ->to_html,
   qr/class="para"/,
   'Got correct from set_attribute'
