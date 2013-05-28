@@ -6,7 +6,7 @@
 	readme_from       m`HTML::Zoom::Parser::HH5P`;
 	requires          p`HTML::HTML5::Entities`;
 	requires          p`HTML::HTML5::Parser 0.206`;
-	requires          p`HTML::Zoom 0.009006`;
+	requires          p`HTML::Zoom 0.009007`;
 	requires          p`Moo 1.000000`;
 	requires          p`XML::LibXML 2.00`;
 	requires          p`namespace::clean`;
